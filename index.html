@@ -338,19 +338,19 @@
                         <div>
                             <label for="shelfLife" class="font-semibold text-slate-300">Data Shelf-Life (X): <span
                                     x-text="x" class="font-bold text-blue-400"></span> years</label>
-                            <input id="shelfLife" type="range" min="5" max="50" x-model.number="x"
+                            <input id="shelfLife" type="range" min="1" max="50" x-model.number="x"
                                 class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider-thumb">
                         </div>
                         <div>
                             <label for="migrationTime" class="font-semibold text-slate-300">Migration Time (Y): <span
                                     x-text="y" class="font-bold text-blue-400"></span> years</label>
-                            <input id="migrationTime" type="range" min="3" max="15" x-model.number="y"
+                            <input id="migrationTime" type="range" min="1" max="15" x-model.number="y"
                                 class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider-thumb">
                         </div>
                     </div>
                     <div class="mt-8 text-center bg-[#16161a] p-6 rounded-xl border border-slate-700">
                         <p class="text-lg text-slate-400">Time Until Quantum Computer (Z): <span
-                                class="font-bold text-white">~15 years</span></p>
+                                class="font-bold text-white">~5 years</span></p>
                         <div class="text-2xl md:text-3xl font-bold mt-2"
                             :class="isUrgent ? 'text-red-400' : 'text-green-400'">
                             <p>Your Risk Window (X+Y): <span x-text="x+y"></span> years</p>
@@ -785,9 +785,9 @@
             }));
 
             Alpine.data('moscaCalculator', () => ({
-                x: 10,
-                y: 7,
-                z: 15,
+                x: 7,
+                y: 3,
+                z: 5,
                 get isUrgent() { return (this.x + this.y) > this.z; },
                 get message() {
                     if ((this.x + this.y) > this.z) {

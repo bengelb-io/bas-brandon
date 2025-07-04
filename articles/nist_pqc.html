@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technical Brief: A Deep Dive into the NIST PQC Standards | Bay Area Secure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link rel="stylesheet" href="/styles/article.css">
+</head>
+<body class="antialiased">
+
+    <header class="bg-[#16161a]/80 backdrop-blur-lg sticky top-0 left-0 right-0 z-50 border-b border-slate-800">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-white">
+                BayArea<span class="text-blue-400">Secure</span>
+            </a>
+            <a href="/" class="font-semibold text-blue-400 hover:text-blue-300 transition">
+                &larr; Back to Main Site
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <div class="container mx-auto px-6 py-16 md:py-24 max-w-4xl">
+            <article class="article-body">
+                <span class="text-base font-semibold uppercase tracking-wider text-blue-400">Technical Brief</span>
+                <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-white mt-2 mb-8 leading-tight">A Deep Dive into the NIST PQC Standards</h1>
+
+                <h2>The NIST PQC Standardization Process</h2>
+                <h4>A Multi-Year Global Effort</h4>
+                <p>The NIST PQC standardization process, initiated in 2016, was a rigorous, transparent, and open competition to find the next generation of public-key algorithms resistant to quantum attacks. This "survival of the fittest" approach, where algorithms were subjected to years of intense public scrutiny, ensures that the final standards are robust and trustworthy.</p>
+
+                <h4>The First Finalized Standards (August 2024)</h4>
+                <p>In August 2024, NIST published the first three finalized FIPS for PQC:</p>
+                <ul>
+                    <li><strong>FIPS 203 (ML-KEM):</strong> Based on <strong>CRYSTALS-Kyber</strong> for key establishment.</li>
+                    <li><strong>FIPS 204 (ML-DSA):</strong> Based on <strong>CRYSTALS-Dilithium</strong> for digital signatures.</li>
+                    <li><strong>FIPS 205 (SLH-DSA):</strong> Based on <strong>SPHINCS+</strong>, an alternative signature standard.</li>
+                </ul>
+
+                <h4>The Principle of Algorithmic Diversity</h4>
+                <p>NIST deliberately chose algorithms from different mathematical families (lattices and hash functions) to hedge against future breakthroughs in cryptanalysis. This is a critical risk management strategy for long-term cryptographic resilience.</p>
+
+                <h2>Key Encapsulation: ML-KEM (CRYSTALS-Kyber) - FIPS 203</h2>
+                <h4>Mathematical Foundations: The Module-LWE Problem</h4>
+                <p>Kyber's security is based on the hardness of the Module-Learning with Errors (Module-LWE) problem. Informally, this is like trying to solve a system of linear equations that has been intentionally corrupted with small, random "noise," a task believed to be intractable even for quantum computers.</p>
+
+                <h4>Algorithmic Mechanics</h4>
+                <p>Kyber is a Key Encapsulation Mechanism (KEM). It allows two parties to securely establish a shared secret key over an insecure channel. This secret key can then be used for fast symmetric encryption (like AES). This process is highly efficient and practical for protocols like TLS.</p>
+
+                <h4>Security and Performance Profile</h4>
+                <ul>
+                    <li><strong>Key/Ciphertext Sizes:</strong> Practical for modern protocols. For NIST Level 3, the public key is 1184 bytes and the ciphertext is 1088 bytes.</li>
+                    <li><strong>Performance:</strong> Exceptionally fast, even outperforming some classical algorithms like X25519 on modern processors.</li>
+                </ul>
+
+                <h2>Digital Signatures Part I: ML-DSA (CRYSTALS-Dilithium) - FIPS 204</h2>
+                <h4>Mathematical Foundations: Module-LWE and Module-SIS</h4>
+                <p>Dilithium's security relies on two hard lattice problems: Module-LWE (like Kyber) and the Module-Short Integer Solution (SIS) problem. This dual foundation provides resistance against both key recovery and signature forgery.</p>
+
+                <h4>Algorithmic Mechanics: Fiat-Shamir with Aborts</h4>
+                <p>Dilithium uses an elegant technique called "rejection sampling." During signing, the algorithm may need to "abort" and restart with new randomness to prevent leaking information about the secret key. This is critical for achieving compact signatures while maintaining high security.</p>
+               
+                <h4>Security and Performance Profile</h4>
+                <ul>
+                    <li><strong>Key/Signature Sizes:</strong> Larger than classical signatures, but a practical trade-off. For NIST Level 2, the public key is 1312 bytes and the signature is 2420 bytes.</li>
+                    <li><strong>Performance:</strong> Very fast for both signing and verification, and designed to be easier to implement securely than other schemes.</li>
+                </ul>
+
+                <h2>Digital Signatures Part II: SLH-DSA (SPHINCS+) - FIPS 205</h2>
+                <h4>Mathematical Foundations: Stateless Hash-Based Signatures</h4>
+                <p>SPHINCS+ has a very different security foundation. Its security is derived entirely from the properties of its underlying cryptographic hash function (e.g., SHA-256). To break SPHINCS+, an attacker would effectively need to break a trusted hash function, which is considered highly unlikely.</p>
+
+                <h4>Algorithmic Mechanics: A Tree of Trees</h4>
+                <p>SPHINCS+ is a "stateless" hash-based scheme, which is a major improvement over older stateful designs. It uses a complex "hypertree" of many one-time signatures. This structure is what makes the signatures very large, as a signature must contain an entire authentication path up to the public root.</p>
+
+                <h4>Security and Performance Profile</h4>
+                <ul>
+                    <li><strong>Key/Signature Sizes:</strong> The keys are tiny (e.g., 32-64 bytes), but the signatures are massive (from ~8 KB to ~50 KB).</li>
+                    <li><strong>Performance:</strong> Much slower than Dilithium, by orders of magnitude.</li>
+                    <li><strong>Use Case:</strong> Ideal for high-assurance, low-frequency applications like signing a root CA certificate or device firmware, where long-term trust is more important than speed or size.</li>
+                </ul>
+
+                <h2>Comparative Analysis and Performance Benchmarks</h2>
+                <p>The choice of algorithm involves trade-offs between security, size, and speed. The following table summarizes the characteristics of the primary NIST standards to aid in technical decision-making.</p>
+                <div class="table-container my-8">
+                    <table class="article-table">
+                        <thead>
+                            <tr>
+                                <th>Algorithm & Variant</th>
+                                <th>NIST Level</th>
+                                <th>Public Key (bytes)</th>
+                                <th>Signature/Ciphertext (bytes)</th>
+                                <th>Primary Hardness Problem</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-600">
+                            <tr><td><strong>ML-KEM-768</strong> (Kyber)</td><td>3</td><td>1184</td><td>1088</td><td>Module-LWE</td></tr>
+                            <tr><td><strong>ML-DSA-65</strong> (Dilithium)</td><td>3</td><td>1952</td><td>3293</td><td>Module-LWE & Module-SIS</td></tr>
+                            <tr><td><strong>SLH-DSA-128s</strong> (SPHINCS+)</td><td>1</td><td>32</td><td>7856</td><td>Hash Function Security</td></tr>
+                             <tr><td><strong>SLH-DSA-256s</strong> (SPHINCS+)</td><td>5</td><td>64</td><td>29792</td><td>Hash Function Security</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p>In summary: <strong>Kyber</strong> is the fast choice for key establishment. <strong>Dilithium</strong> is the general-purpose workhorse for signatures. <strong>SPHINCS+</strong> is the conservative, high-assurance option for when trust is paramount.</p>
+
+            </article>
+        </div>
+    </main>
+
+    <footer class="border-t border-slate-800">
+        <div class="container mx-auto px-6 py-8 text-center text-slate-500">
+            <p>&copy; 2025 Bay Area Secure. All Rights Reserved.</p>
+            <p class="text-sm mt-2">Navigating the Quantum Future, Together.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
+

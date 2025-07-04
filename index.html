@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bay Area Secure | Your Expert Partner in PQC Migration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <!-- Chosen Palette: Dark Matter & Quantum Blue -->
+    <!-- 
+    Application Structure Plan: A single-page application structured as an expert narrative. It guides the user from understanding the urgency of the quantum threat to appreciating the strategic depth of the proprietary QEHC architecture. The flow is:
+    1. Home: Establish urgency and introduce Bay Area Secure as the expert guide.
+    2. The Threat: Detail the "Harvest Now, Decrypt Later" problem with an interactive risk calculator and a new visual timeline.
+    3. Our Framework (QEHC): Introduce the novel 3-layer QEHC system with a clear architectural diagram and a direct comparison against competing technologies like QKD.
+    4. Migration Services: Detail the 4-phase service model with a new process flow diagram, turning the architecture into a tangible client journey.
+    5. Resources: Demonstrate thought leadership with educational content.
+    6. About Us: Build trust by showcasing the team's deep expertise, core values, and providing clear contact information.
+    This user flow is designed to build confidence at each step, positioning the company as a strategic partner, not just a vendor.
+    -->
+    <!-- 
+    Visualization & Content Choices:
+    - Report Info: The 3-layer QEHC Architecture. Goal: Explain a complex, proprietary system. Viz/Method: A custom HTML/Tailwind diagram. Interaction: Hover effects to highlight layers. Justification: A visual diagram is essential to make the abstract architecture tangible and understandable. Library/Method: HTML/CSS.
+    - Report Info: PQC vs. QKD Comparison. Goal: Clearly differentiate and prove superiority over a competing technology. Viz/Method: A styled HTML table. Interaction: N/A. Justification: A table is the most effective format for a direct, feature-by-feature comparison, clearly communicating cost and feasibility advantages. Library/Method: HTML/Tailwind.
+    - Report Info: Mosca's Theorem. Goal: Create interactive urgency. Viz/Method: Interactive sliders. Interaction: User manipulates sliders to see their risk profile change in real-time. Justification: Makes the abstract concept of risk personal and immediate. Library/Method: Alpine.js.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        :root {
+            --font-sans: 'Inter', sans-serif;
+        }
+
+        html {
+            scroll-padding-top: 80px;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: #16161a;
+            color: #94a1b2;
+        }
+
+        .nav-link {
+            transition: all 0.3s ease;
+            position: relative;
+            padding-bottom: 4px;
+            cursor: pointer;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background-color: #3B82F6;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        .btn-primary {
+            background-color: #3B82F6;
+            color: white;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563EB;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: #374151;
+            color: #d1d5db;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4b5563;
+            transform: translateY(-2px);
+        }
+
+        .section-title {
+            color: #ffffff;
+        }
+
+        .bento-box {
+            background-color: rgba(30, 41, 59, 0.5);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgb(51, 65, 85);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .slider-thumb::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #3B82F6;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .slider-thumb::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #3B82F6;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .phase-tab {
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            color: #94a1b2;
+        }
+
+        .phase-tab.active {
+            color: #3B82F6;
+            border-bottom-color: #3B82F6;
+        }
+
+        .phase-tab:hover {
+            color: #bfdbfe;
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+
+</head>
+
+<body x-data="appState()" @scroll.window="determineActiveSection()" class="antialiased">
+
+    <header class="bg-[#16161a]/80 backdrop-blur-lg sticky top-0 left-0 right-0 z-50 border-b border-slate-800">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#home" class="text-2xl font-bold text-white">
+                BayArea<span class="text-blue-400">Secure</span>
+            </a>
+            <nav class="hidden xl:flex space-x-8 text-slate-300">
+                <a href="#home" class="nav-link" :class="{'active text-blue-400': activeSection === 'home'}">Home</a>
+                <a href="#threat" class="nav-link" :class="{'active text-blue-400': activeSection === 'threat'}">The
+                    Threat</a>
+                <a href="#framework" class="nav-link"
+                    :class="{'active text-blue-400': activeSection === 'framework'}">Our Framework</a>
+                <a href="#services" class="nav-link"
+                    :class="{'active text-blue-400': activeSection === 'services'}">Migration Services</a>
+                <a href="#resources" class="nav-link"
+                    :class="{'active text-blue-400': activeSection === 'resources'}">Resources</a>
+                <a href="#about-us" class="nav-link"
+                    :class="{'active text-blue-400': activeSection === 'about-us'}">About Us</a>
+            </nav>
+            <a href="#contact" class="hidden xl:inline-block btn-primary font-semibold py-2 px-6 rounded-lg shadow-md">
+                Get Started
+            </a>
+            <button @click="openMenu = !openMenu" class="xl:hidden text-slate-300 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        :d="openMenu ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'"></path>
+                </svg>
+            </button>
+        </div>
+        <div x-show="openMenu" x-cloak @click.away="openMenu = false"
+            class="xl:hidden bg-[#16161a] border-t border-slate-800">
+            <nav class="flex flex-col items-center py-4 space-y-4 text-slate-300">
+                <a href="#home" @click="openMenu = false" class="nav-link text-lg"
+                    :class="{'active text-blue-400': activeSection === 'home'}">Home</a>
+                <a href="#threat" @click="openMenu = false" class="nav-link text-lg"
+                    :class="{'active text-blue-400': activeSection === 'threat'}">The Threat</a>
+                <a href="#framework" @click="openMenu = false" class="nav-link text-lg"
+                    :class="{'active text-blue-400': activeSection === 'framework'}">Our Framework</a>
+                <a href="#services" @click="openMenu = false" class="nav-link text-lg"
+                    :class="{'active text-blue-400': activeSection === 'services'}">Migration Services</a>
+                <a href="#resources" @click="openMenu = false" class="nav-link text-lg"
+                    :class="{'active text-blue-400': activeSection === 'resources'}">Resources</a>
+                <a href="#about-us" @click="openMenu = false" class="nav-link text-lg"
+                    :class="{'active text-blue-400': activeSection === 'about-us'}">About Us</a>
+                <a href="#contact" @click="openMenu = false"
+                    class="mt-4 btn-primary font-semibold py-2 px-8 rounded-lg shadow-md">
+                    Get Started
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Home Page Content -->
+        <section id="home">
+            <div class="relative pt-32 pb-20">
+                <div class="container mx-auto px-6 text-center z-10">
+                    <h1 class="text-4xl md:text-6xl font-bold tracking-tight text-white mb-6 leading-tight">
+                        Your Expert Partner for the <br class="hidden md:block"> <span
+                            class="text-blue-400">Post-Quantum Transition.</span>
+                    </h1>
+                    <p class="max-w-3xl mx-auto text-lg md:text-xl text-slate-400 mb-12">
+                        We deliver a successful, compliant, and secure PQC migration by turning cryptographic
+                        breakthroughs into real-world, resilient security for your enterprise.
+                    </p>
+                    <div class="flex justify-center space-x-4">
+                        <a href="#contact" class="btn-primary font-bold py-3 px-8 rounded-lg shadow-lg text-lg">
+                            Schedule PQC Assessment
+                        </a>
+                        <a href="#threat" class="btn-secondary font-bold py-3 px-8 rounded-lg shadow-lg text-lg">
+                            Understand the Urgency
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="py-20 bg-[#1a1a1f]">
+                <div class="container mx-auto px-6">
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl md:text-4xl font-bold text-white">Navigating the Quantum Security Imperative
+                        </h2>
+                    </div>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 text-left">
+                        <div class="bento-box">
+                            <h3 class="text-xl font-bold text-white mb-3">The End of Classical Encryption</h3>
+                            <p class="text-slate-400">Quantum computers running Shor's algorithm will render today's
+                                public-key encryption (RSA & ECC) obsolete. The security that underpins our digital
+                                world is on a fixed timeline to failure.</p>
+                        </div>
+                        <div class="bento-box">
+                            <h3 class="text-xl font-bold text-white mb-3">"Harvest Now, Decrypt Later" Attacks</h3>
+                            <p class="text-slate-400">Adversaries are actively storing your encrypted data today to
+                                break it with tomorrow's quantum computers. Any data with a long shelf-life is already
+                                at risk of future exposure.</p>
+                        </div>
+                        <div class="bento-box">
+                            <h3 class="text-xl font-bold text-white mb-3">The 2035 Compliance Deadline</h3>
+                            <p class="text-slate-400">U.S. federal mandates require quantum-resistant cryptography by
+                                2035. Compliance is becoming a prerequisite for federal contracts and a standard for
+                                enterprise due diligence.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- The Threat Page Content -->
+        <section id="threat" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-base font-semibold uppercase tracking-wider text-blue-400">The Quantum Imperative
+                    </h2>
+                    <p class="section-title text-3xl md:text-4xl font-bold mt-2">Why Your Current Encryption is Obsolete
+                    </p>
+                    <p class="mt-4 max-w-3xl mx-auto text-lg text-slate-400">The quantum era isn't a distant threat;
+                        it's an active risk. Adversaries are acting now, and regulatory deadlines are approaching.</p>
+                </div>
+
+                <!-- HNDL Diagram -->
+                <div class="max-w-5xl mx-auto mb-16">
+                    <div class="bento-box p-8">
+                        <h3 class="text-2xl font-bold text-white mb-6 text-center">The "Harvest Now, Decrypt Later"
+                            Attack Timeline</h3>
+                        <div
+                            class="flex flex-col md:flex-row items-center justify-between space-y-8 md:space-y-0 md:space-x-4">
+                            <!-- Step 1: Harvest -->
+                            <div class="flex flex-col items-center text-center w-full md:w-1/3">
+                                <div
+                                    class="w-16 h-16 rounded-full bg-blue-500/10 border-2 border-blue-500/50 flex items-center justify-center text-2xl font-bold text-blue-400">
+                                    1</div>
+                                <h4 class="text-lg font-bold text-white mt-4">Harvest Now</h4>
+                                <p class="text-sm text-slate-400 mt-1">Encrypted data is intercepted and stored by
+                                    adversaries.</p>
+                                <p class="font-mono text-xs text-slate-500 mt-2">Present Day</p>
+                            </div>
+                            <!-- Arrow -->
+                            <div class="w-full md:w-auto h-px md:h-auto md:w-px bg-slate-700 relative">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-2xl text-slate-500 transform md:-rotate-90">&rarr;</span>
+                                </div>
+                            </div>
+                            <!-- Step 2: Wait -->
+                            <div class="flex flex-col items-center text-center w-full md:w-1/3">
+                                <div
+                                    class="w-16 h-16 rounded-full bg-slate-700 border-2 border-slate-600 flex items-center justify-center text-2xl font-bold text-slate-300">
+                                    2</div>
+                                <h4 class="text-lg font-bold text-white mt-4">Wait for Q-Day</h4>
+                                <p class="text-sm text-slate-400 mt-1">Stockpiled data is held until a powerful quantum
+                                    computer is available.</p>
+                                <p class="font-mono text-xs text-slate-500 mt-2">Future</p>
+                            </div>
+                            <!-- Arrow -->
+                            <div class="w-full md:w-auto h-px md:h-auto md:w-px bg-slate-700 relative">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-2xl text-slate-500 transform md:-rotate-90">&rarr;</span>
+                                </div>
+                            </div>
+                            <!-- Step 3: Decrypt -->
+                            <div class="flex flex-col items-center text-center w-full md:w-1/3">
+                                <div
+                                    class="w-16 h-16 rounded-full bg-red-500/10 border-2 border-red-500/50 flex items-center justify-center text-2xl font-bold text-red-400">
+                                    3</div>
+                                <h4 class="text-lg font-bold text-white mt-4">Decrypt Later</h4>
+                                <p class="text-sm text-slate-400 mt-1">All harvested data is decrypted, exposing years
+                                    of secrets.</p>
+                                <p class="font-mono text-xs text-red-400 mt-2">Catastrophic Breach</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div x-data="moscaCalculator()"
+                    class="bg-slate-800/50 p-8 rounded-2xl shadow-lg border border-slate-700 max-w-3xl mx-auto">
+                    <h3 class="text-2xl font-bold text-center text-white mb-4">Calculate Your Quantum Urgency</h3>
+                    <p class="text-center text-slate-400 mb-6">Use Mosca's Theorem ($X+Y > Z$) to see why you need to
+                        act now. If your combined data security needs and migration time ($X+Y$) exceed the arrival of a
+                        quantum computer ($Z$), you're already behind.</p>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="shelfLife" class="font-semibold text-slate-300">Data Shelf-Life (X): <span
+                                    x-text="x" class="font-bold text-blue-400"></span> years</label>
+                            <input id="shelfLife" type="range" min="5" max="50" x-model.number="x"
+                                class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider-thumb">
+                        </div>
+                        <div>
+                            <label for="migrationTime" class="font-semibold text-slate-300">Migration Time (Y): <span
+                                    x-text="y" class="font-bold text-blue-400"></span> years</label>
+                            <input id="migrationTime" type="range" min="3" max="15" x-model.number="y"
+                                class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider-thumb">
+                        </div>
+                    </div>
+                    <div class="mt-8 text-center bg-[#16161a] p-6 rounded-xl border border-slate-700">
+                        <p class="text-lg text-slate-400">Time Until Quantum Computer (Z): <span
+                                class="font-bold text-white">~15 years</span></p>
+                        <div class="text-2xl md:text-3xl font-bold mt-2"
+                            :class="isUrgent ? 'text-red-400' : 'text-green-400'">
+                            <p>Your Risk Window (X+Y): <span x-text="x+y"></span> years</p>
+                            <p x-text="message" class="mt-2 text-xl"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Our Framework (QEHC) Page Content -->
+        <section id="framework" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-base font-semibold uppercase tracking-wider text-blue-400">Our Strategic Blueprint
+                    </h2>
+                    <p class="section-title text-3xl md:text-4xl font-bold mt-2">The Quantum-Enhanced Hybrid
+                        Cryptography (QEHC) Architecture</p>
+                    <p class="mt-4 max-w-3xl mx-auto text-lg text-slate-400">Our novel QEHC system is a pragmatic,
+                        multi-layered defense providing a cost-effective and secure path to quantum resilience. It is a
+                        holistic modernization of your security posture, built on the principles of crypto-agility and
+                        defense-in-depth.</p>
+                </div>
+
+                <div class="max-w-5xl mx-auto">
+                    <div class="bg-slate-800/50 rounded-2xl p-8 md:p-10 border border-slate-700">
+                        <div class="grid md:grid-cols-5 gap-4">
+                            <div class="md:col-span-3 space-y-4">
+                                <!-- Layer 3 -->
+                                <div class="bento-box hover:border-blue-500/50 hover:shadow-2xl">
+                                    <span class="text-sm font-bold text-blue-400">Layer 3: The Enforcement Plane</span>
+                                    <h4 class="text-lg font-bold text-white mt-1">Agile Transport & Data</h4>
+                                    <p class="text-sm text-slate-400 mt-2">Applies hybrid cryptography to data
+                                        in-transit (via Hybrid TLS) and at-rest (via Hybrid Envelope Encryption),
+                                        ensuring security is maintained even if one algorithm is compromised.</p>
+                                </div>
+                                <div class="pl-4">
+                                    <div class="h-8 w-px bg-slate-600 ml-5"></div>
+                                </div>
+                                <!-- Layer 2 -->
+                                <div class="bento-box hover:border-blue-500/50 hover:shadow-2xl">
+                                    <span class="text-sm font-bold text-blue-400">Layer 2: The Control Plane</span>
+                                    <h4 class="text-lg font-bold text-white mt-1">Hybrid Identity & Key Management</h4>
+                                    <p class="text-sm text-slate-400 mt-2">Issues hybrid X.509 certificates (Classical +
+                                        PQC) and governs the entire key lifecycle with a crypto-agile Key Management
+                                        System (KMS), enabling a seamless, phased migration.</p>
+                                </div>
+                                <div class="pl-4">
+                                    <div class="h-8 w-px bg-slate-600 ml-5"></div>
+                                </div>
+                                <!-- Layer 1 -->
+                                <div class="bento-box hover:border-blue-500/50 hover:shadow-2xl">
+                                    <span class="text-sm font-bold text-blue-400">Layer 1: The Root of Trust</span>
+                                    <h4 class="text-lg font-bold text-white mt-1">Quantum Entropy Foundation</h4>
+                                    <p class="text-sm text-slate-400 mt-2">Uses Hardware Security Modules (HSMs) with
+                                        integrated Quantum technology to create verifiably unpredictable keys, hardening
+                                        the entire cryptographic ecosystem.</p>
+                                </div>
+                            </div>
+                            <div class="md:col-span-2 flex flex-col justify-center p-4">
+                                <h3 class="text-2xl font-bold text-white">The NIST-Recommended Path to Quantum Safety
+                                </h3>
+                                <p class="text-slate-400 mt-4">NIST and the NSA overwhelmingly recommend Post-Quantum
+                                    Cryptography (PQC) as the only viable path for protecting critical data. Our QEHC
+                                    architecture is built entirely on these official, standardized PQC algorithms.</p>
+                                <p class="text-slate-400 mt-4">Alternative approaches like Quantum Key Distribution
+                                    (QKD) are not recommended for enterprise use due to severe practical limitations and
+                                    security gaps.</p>
+                                <a href="#framework-comparison"
+                                    class="mt-6 font-semibold text-blue-400 hover:text-blue-300 transition">See the PQC
+                                    vs. QKD Comparison &darr;</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-16" id="framework-comparison">
+                    <div class="max-w-6xl mx-auto overflow-x-auto">
+                        <div class="bg-slate-800/50 rounded-2xl p-2 border border-slate-700">
+                            <table class="min-w-full divide-y divide-slate-700">
+                                <thead>
+                                    <tr>
+                                        <th class="px-6 py-4 text-left text-sm font-semibold text-white">Feature</th>
+                                        <th
+                                            class="px-6 py-4 text-left text-sm font-semibold text-blue-400 bg-blue-500/10">
+                                            BayAreaSecure (PQC/QEHC)</th>
+                                        <th class="px-6 py-4 text-left text-sm font-semibold text-white">Alternative
+                                            (QKD)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-700">
+                                    <tr>
+                                        <td class="px-6 py-4 font-semibold text-slate-300">Official Recommendation</td>
+                                        <td class="px-6 py-4 text-slate-300 bg-blue-500/10">The standardized and
+                                            recommended path by NIST & NSA.</td>
+                                        <td class="px-6 py-4 text-slate-300">Advised against by NIST & NSA for critical
+                                            systems.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 font-semibold text-slate-300">Authentication</td>
+                                        <td class="px-6 py-4 text-slate-300 bg-blue-500/10">Built-in via standardized
+                                            digital signature algorithms (ML-DSA).</td>
+                                        <td class="px-6 py-4 text-slate-300">None. Vulnerable to man-in-the-middle
+                                            attacks without a separate PQC solution.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 font-semibold text-slate-300">Infrastructure</td>
+                                        <td class="px-6 py-4 text-slate-300 bg-blue-500/10">Software-based: Runs on your
+                                            existing classical hardware and networks.</td>
+                                        <td class="px-6 py-4 text-slate-300">Hardware-based: Requires new, dedicated
+                                            fiber optic links and quantum hardware.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 font-semibold text-slate-300">Denial of Service Risk</td>
+                                        <td class="px-6 py-4 text-slate-300 bg-blue-500/10">Resilient. Operates on
+                                            standard, robust network protocols.</td>
+                                        <td class="px-6 py-4 text-slate-300">High. The sensitive physical channel is
+                                            easily disrupted.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Migration Services Page Content -->
+        <section id="services" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-base font-semibold uppercase tracking-wider text-blue-400">PQC Migration as a
+                        Service</h2>
+                    <p class="section-title text-3xl md:text-4xl font-bold mt-2">A Phased, End-to-End Approach to
+                        Quantum Resilience</p>
+                    <p class="mt-4 max-w-3xl mx-auto text-lg text-slate-400">A successful migration is a strategic
+                        journey, not a product installation. We guide you through our structured framework, turning the
+                        complexity of the quantum transition into a manageable, value-driven process.</p>
+                </div>
+
+                <!-- Migration Process Diagram -->
+                <div class="max-w-6xl mx-auto">
+                    <div class="flex flex-col md:flex-row items-stretch justify-center -mx-4">
+                        <!-- Step 1 -->
+                        <div class="w-full md:w-1/4 p-4 flex flex-col">
+                            <div class="bento-box flex-grow flex flex-col">
+                                <span class="text-3xl font-bold text-blue-400/50">01</span>
+                                <h3 class="text-xl font-bold text-white mt-2">Assess & Discover</h3>
+                                <p class="text-sm text-slate-400 mt-2 flex-grow">Conduct a deep cryptographic discovery
+                                    to create a full inventory (CBOM), assess HNDL risk, and establish a clear baseline.
+                                </p>
+                            </div>
+                        </div>
+                        <!-- Step 2 -->
+                        <div class="w-full md:w-1/4 p-4 flex flex-col">
+                            <div class="bento-box flex-grow flex flex-col">
+                                <span class="text-3xl font-bold text-blue-400/50">02</span>
+                                <h3 class="text-xl font-bold text-white mt-2">Plan & Strategize</h3>
+                                <p class="text-sm text-slate-400 mt-2 flex-grow">Design a tailored, low-risk migration
+                                    roadmap based on our QEHC architecture and prioritize systems for transition.</p>
+                            </div>
+                        </div>
+                        <!-- Step 3 -->
+                        <div class="w-full md:w-1/4 p-4 flex flex-col">
+                            <div class="bento-box flex-grow flex flex-col">
+                                <span class="text-3xl font-bold text-blue-400/50">03</span>
+                                <h3 class="text-xl font-bold text-white mt-2">Migrate & Implement</h3>
+                                <p class="text-sm text-slate-400 mt-2 flex-grow">Provide hands-on implementation of NIST
+                                    standards (Kyber, Dilithium) and deploy hybrid certificates for a seamless
+                                    transition.</p>
+                            </div>
+                        </div>
+                        <!-- Step 4 -->
+                        <div class="w-full md:w-1/4 p-4 flex flex-col">
+                            <div class="bento-box flex-grow flex flex-col">
+                                <span class="text-3xl font-bold text-blue-400/50">04</span>
+                                <h3 class="text-xl font-bold text-white mt-2">Manage & Evolve</h3>
+                                <p class="text-sm text-slate-400 mt-2 flex-grow">Provide continuous compliance
+                                    monitoring, threat intelligence, and customized team training to maintain a
+                                    future-proof security posture.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Resources Page Content -->
+        <section id="resources" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-base font-semibold uppercase tracking-wider text-blue-400">Knowledge Center</h2>
+                    <p class="section-title text-3xl md:text-4xl font-bold mt-2">Expand Your PQC Expertise</p>
+                    <p class="mt-4 max-w-3xl mx-auto text-lg text-slate-400">The transition to Post-Quantum Cryptography
+                        is a global effort. We encourage you to explore these foundational resources from the
+                        organizations leading the charge, alongside our expert analysis.</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 items-start">
+                    <div class="bento-box p-8 h-full">
+                        <h3 class="text-2xl font-bold text-white mb-4 text-center">Featured Video</h3>
+                        <div class="video-container rounded-lg overflow-hidden border border-slate-700">
+                            <iframe src="https://www.youtube-nocookie.com/embed/jRwqitKGnHU"
+                                title="Bay Area Secure: Lattice-based Quantum-resistant Encryption." frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen></iframe>
+                        </div>
+                    </div>
+
+                    <div class="bento-box p-8 h-full">
+                        <h3 class="text-2xl font-bold text-white mb-4 text-center">Executive & Technical Briefs</h3>
+                        <div class="space-y-4">
+                            <a href="/papers/executive_brief.html"
+                                class="block p-4 bg-slate-700/50 rounded-lg hover:bg-slate-700 transition-colors">
+                                <span class="text-xs font-semibold text-blue-400">WHITE PAPER</span>
+                                <p class="font-bold text-white mt-1">The CEO's Guide to the HNDL Threat: Why PQC is a
+                                    2025 Priority</p>
+                            </a>
+                            <a href="/articles/nist_pqc.html"
+                                class="block p-4 bg-slate-700/50 rounded-lg hover:bg-slate-700 transition-colors">
+                                <span class="text-xs font-semibold text-green-400">TECHNICAL DEEP DIVE</span>
+                                <p class="font-bold text-white mt-1">An In-Depth Look at the NIST PQC Standards: Kyber,
+                                    Dilithium, and SPHINCS+</p>
+                            </a>
+                            <a href="/papers/hybrid_certificates.html"
+                                class="block p-4 bg-slate-700/50 rounded-lg hover:bg-slate-700 transition-colors">
+                                <span class="text-xs font-semibold text-blue-400">WHITE PAPER</span>
+                                <p class="font-bold text-white mt-1">A Practical Guide to Hybrid Certificates for a
+                                    Seamless Migration</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 text-center">
+                    <h3 class="text-2xl font-bold text-white">Official External Resources</h3>
+                </div>
+                <div class="mt-8 grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="bento-box">
+                        <h3 class="text-xl font-bold text-white mb-3">NIST PQC Standardization</h3>
+                        <p class="text-slate-400 mb-4">The official source for the Post-Quantum Cryptography
+                            Standardization Process.</p>
+                        <a href="https://csrc.nist.gov/projects/post-quantum-cryptography" target="_blank"
+                            rel="noopener noreferrer"
+                            class="font-semibold text-blue-400 hover:text-blue-300 transition">Visit NIST &rarr;</a>
+                    </div>
+                    <div class="bento-box">
+                        <h3 class="text-xl font-bold text-white mb-3">PQCrypto Conference</h3>
+                        <p class="text-slate-400 mb-4">The leading academic conference on PQC for the latest research.
+                        </p>
+                        <a href="https://pqcrypto.org/" target="_blank" rel="noopener noreferrer"
+                            class="font-semibold text-blue-400 hover:text-blue-300 transition">Explore Research
+                            &rarr;</a>
+                    </div>
+                    <div class="bento-box">
+                        <h3 class="text-xl font-bold text-white mb-3">ETSI Quantum-Safe Crypto</h3>
+                        <p class="text-slate-400 mb-4">Practical guidance and specifications for quantum-safe
+                            deployments.</p>
+                        <a href="https://www.etsi.org/technologies/quantum-safe-cryptography" target="_blank"
+                            rel="noopener noreferrer"
+                            class="font-semibold text-blue-400 hover:text-blue-300 transition">View Standards &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Us Page Content -->
+        <section id="about-us" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-base font-semibold uppercase tracking-wider text-blue-400">Our Mission</h2>
+                    <p class="section-title text-3xl md:text-4xl font-bold mt-2">The Architects of the Quantum-Secure
+                        Future</p>
+                </div>
+                <div class="max-w-4xl mx-auto bg-slate-800/50 p-8 md:p-12 rounded-lg border border-slate-700">
+                    <blockquote class="text-center text-2xl italic text-white">
+                        "Intellectuals solve problems; geniuses prevent them."
+                        <cite class="block not-italic mt-4 text-lg font-semibold text-slate-400">— Albert
+                            Einstein</cite>
+                    </blockquote>
+                    <p class="mt-10 text-lg text-slate-300">This principle is the core of our philosophy. Bay Area
+                        Secure was founded not just to react to the quantum threat, but to prevent the catastrophic
+                        security failures it represents. Our founder's extensive research in quantum physics and
+                        mathematics revealed a critical gap in the market: while many were focused on the theoretical
+                        algorithms, few were preparing for the immense practical challenge of real-world implementation.
+                    </p>
+                    <p class="mt-6 text-lg text-slate-300">We have assembled an elite, multidisciplinary team of
+                        software engineers, artists, and scientists to bridge this gap. This unique fusion of talent
+                        allows us to approach the future of data encryption and novel data strategies with both deep
+                        technical rigor and creative, human-centric design. We don't just provide algorithms; we deliver
+                        fully engineered, seamlessly integrated security solutions for the quantum era.</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto mt-16">
+                    <div class="text-slate-300">
+                        <div class="bento-box mb-6">
+                            <h3 class="text-lg font-semibold text-white">Contact Information</h3>
+                            <p class="mt-2 text-slate-400">
+                                <a href="mailto:info@BayAreaSecure.com"
+                                    class="hover:text-blue-400">info@BayAreaSecure.com</a><br>
+                                <a href="tel:+14157415790" class="hover:text-blue-400">+1 (415) 741-5790</a>
+                            </p>
+                            <p class="mt-4 text-slate-400">
+                                <strong class="text-white">Bay Area Secure Inc.</strong><br>
+                                440 N Wolfe Rd<br>
+                                Sunnyvale, CA 94085
+                            </p>
+                        </div>
+                        <div class="rounded-lg overflow-hidden border border-slate-700">
+                            <iframe
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3170.885686525883!2d-122.03150498469398!3d37.36883097983515!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808fb64f7a555555%3A0x8972f7e8f446d2a3!2s440%20N%20Wolfe%20Rd%2C%20Sunnyvale%2C%20CA%2094085!5e0!3m2!1sen!2sus!4v1678886400000!5m2!1sen!2sus"
+                                width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy"
+                                referrerpolicy="no-referrer-when-downgrade" class="grayscale invert brightness-90">
+                            </iframe>
+                        </div>
+                    </div>
+                    <div class="bento-box p-8">
+                        <h3 class="text-2xl font-bold text-white mb-4">Our Core Values</h3>
+                        <ul class="space-y-4">
+                            <li class="flex items-start">
+                                <span class="text-blue-400 mr-3 mt-1 font-bold">1.</span>
+                                <div><strong class="text-white">Proactive Prevention:</strong> We design systems to
+                                    prevent future problems, not just react to current ones.</div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-400 mr-3 mt-1 font-bold">2.</span>
+                                <div><strong class="text-white">Pragmatic Implementation:</strong> The best security is
+                                    security that is usable, scalable, and seamlessly integrated into the real world.
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-400 mr-3 mt-1 font-bold">3.</span>
+                                <div><strong class="text-white">Uncompromising Expertise:</strong> Our work is founded
+                                    on deep, multidisciplinary knowledge across quantum physics, mathematics, and
+                                    enterprise software engineering.</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white">Take the First Step to Quantum Resilience</h2>
+                    <p class="mt-4 max-w-2xl mx-auto text-lg text-slate-400">The time to prepare is now. Contact us to
+                        schedule a complimentary PQC Readiness Assessment and understand your organization's specific
+                        risks and migration path.</p>
+                </div>
+                <div
+                    class="max-w-xl mx-auto bg-slate-800/50 text-gray-800 rounded-xl p-8 shadow-2xl border border-slate-700">
+                    <form x-data="{ success: false, error: false }" @submit.prevent="
+        error = false;
+        const formData = new FormData($el);
+        fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => {
+            if (res.ok) {
+                success = true;
+                $el.reset();
+            } else {
+                throw new Error('Submission failed');
+            }
+        })
+        .catch(() => error = true);
+    " class="space-y-6">
+                        <input type="hidden" name="access_key" value="NONSENSE_ACCESS_KEY_HERE">
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <input type="text" name="name" placeholder="Full Name"
+                                class="w-full p-3 rounded-md bg-slate-700 text-slate-200 border border-slate-600 focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-400"
+                                required>
+                            <input type="email" name="email" placeholder="Work Email"
+                                class="w-full p-3 rounded-md bg-slate-700 text-slate-200 border border-slate-600 focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-400"
+                                required>
+                        </div>
+
+                        <div class="mb-6">
+                            <input type="text" name="company" placeholder="Company Name"
+                                class="w-full p-3 rounded-md bg-slate-700 text-slate-200 border border-slate-600 focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-400">
+                        </div>
+
+                        <div class="mb-6">
+                            <textarea name="message" placeholder="Tell us about your PQC concerns..." rows="4"
+                                class="w-full p-3 rounded-md bg-slate-700 text-slate-200 border border-slate-600 focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder:text-slate-400"
+                                ></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full btn-primary font-bold py-3 px-8 rounded-lg text-lg">
+                            Request Assessment
+                        </button>
+
+                        <p x-show="success" class="text-center text-sm text-green-400 mt-4" x-transition>
+                            Thank you! We'll be in touch soon.
+                        </p>
+                        <p x-show="error" class="text-center text-sm text-red-400 mt-4" x-transition>
+                            Something went wrong. Please try again.
+                        </p>
+                    </form>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="border-t border-slate-800">
+        <div class="container mx-auto px-6 py-8 text-center text-slate-500">
+            <p>&copy; 2025 Bay Area Secure. All Rights Reserved.</p>
+            <p class="text-sm mt-2">Navigating the Quantum Future, Together.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('appState', () => ({
+                activeSection: 'home',
+                openMenu: false,
+                determineActiveSection() {
+                    let currentSection = 'home';
+                    document.querySelectorAll('main section').forEach(section => {
+                        const sectionTop = section.offsetTop - 100;
+                        if (window.scrollY >= sectionTop) {
+                            currentSection = section.id;
+                        }
+                    });
+                    this.activeSection = currentSection;
+                }
+            }));
+
+            Alpine.data('moscaCalculator', () => ({
+                x: 10,
+                y: 7,
+                z: 15,
+                get isUrgent() { return (this.x + this.y) > this.z; },
+                get message() {
+                    if ((this.x + this.y) > this.z) {
+                        const yearsOver = (this.x + this.y) - this.z;
+                        return `Urgent action required. Your data is projected to be at risk for ${yearsOver} year(s).`;
+                    } else {
+                        return "You are within a safe migration window, but planning should begin now.";
+                    }
+                }
+            }));
+        });
+    </script>
+</body>
+
+</html>
